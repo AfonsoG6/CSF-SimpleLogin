@@ -84,7 +84,7 @@ def delete_token(token):
 
 bgs = []
 for filename in os.listdir("images/coffee"):
-    bgs.append(os.path.join(IMAGES_BASE_URL, "images", "coffee", filename))
+    bgs.append(os.path.join(IMAGES_BASE_URL, "coffee", filename))
 
 setup_db()
 app = Flask(__name__)
@@ -117,7 +117,7 @@ def login():
         if g.user:
             return redirect(url_for("profile"))
         else:
-            return render_template("login.html", bg_url=os.path.join(IMAGES_BASE_URL, "images", "login.jpg"))
+            return render_template("login.html", bg_url=os.path.join(IMAGES_BASE_URL, "login.jpg"))
 
 
 @app.route("/profile", methods=["GET", "POST"])
