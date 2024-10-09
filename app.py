@@ -88,6 +88,7 @@ for filename in os.listdir("images/coffee"):
 
 setup_db()
 app = Flask(__name__)
+app.config.from_json("config.json")
 app.secret_key = "rDizfC7@pXXv!5ioK3&kz67CAUgsNtUvn7f7%$TFnmyuhKSKooX7N9uy7"
 
 
@@ -146,7 +147,5 @@ def index():
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("-p", "--port", default=8000, type=int, help="port to listen on")
-    parser.add_argument("-c", "--config", default="config.json", type=str, help="config file")
     args = parser.parse_args()
-    app.config.from_json(args.config)
     app.run(load_dotenv=True, debug=True)
