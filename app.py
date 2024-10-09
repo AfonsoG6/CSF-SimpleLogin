@@ -148,4 +148,4 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("-p", "--port", default=8000, type=int, help="port to listen on")
     args = parser.parse_args()
-    app.run(port=args.port, debug=True)
+    app.run(host="0.0.0.0", port=args.port, debug=True)
