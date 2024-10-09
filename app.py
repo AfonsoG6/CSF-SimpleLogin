@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 import os, random
 import sqlite3
 
-IMAGES_BASE_URL = "https://turbina.gsd.inesc-id.pt/csf2324/t1/images"
+IMAGES_BASE_URL = "https://turbina.dpss.inesc-id.pt/csf2324/t1/images"
 DB_PATH = "sqlite.db"
 
 
@@ -84,7 +84,7 @@ def delete_token(token):
 
 bgs = []
 for filename in os.listdir("images/coffee"):
-    bgs.append(os.path.join(IMAGES_BASE_URL, "coffee", filename))
+    bgs.append(IMAGES_BASE_URL+"/coffee/"+filename)
 
 setup_db()
 app = Flask(__name__)
@@ -108,43 +108,45 @@ def login():
         password = request.form["password"]
 
         if check_login(username, password):
-            resp = make_response(redirect(url_for("profile")))
+            resp = make_response(redirect(url_for("profile", _external=True, _scheme="http")))
             resp.set_cookie("token", create_token(username), max_age=5 * 60)
             return resp
         else:
-            return redirect(url_for("login"))
+            return redirect(url_for("login", _external=True, _scheme="http"))
     else:
         if g.user:
-            return redirect(url_for("profile"))
+            return redirect(url_for("profile", _external=True, _scheme="http"))
         else:
-            return render_template("login.html", bg_url=os.path.join(IMAGES_BASE_URL, "login.jpg"))
+            return render_template("login.html", bg_url=IMAGES_BASE_URL + "/login.jpg")
 
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
     if request.method == "POST":
         delete_token(g.token)
-        resp = make_response(redirect(url_for("login")))
+        resp = make_response(redirect(url_for("login", _external=True, _scheme="http")))
         resp.delete_cookie("token")
         return resp
     else:
         if g.user:
             return render_template("profile.html", bg_url=random.choice(bgs), username=g.user.username)
         else:
-            return redirect(url_for("login"))
+            return redirect(url_for("login", _external=True, _scheme="http"))
 
 
 @app.route("/", methods=["GET"])
 @app.route("/index", methods=["GET"])
 def index():
     if not g.user:
-        return redirect(url_for("login"))
+        return redirect(url_for("login", _external=True, _scheme="http"))
     else:
-        return redirect(url_for("profile"))
+        return redirect(url_for("profile", _external=True, _scheme="http"))
 
 
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("-p", "--port", default=8000, type=int, help="port to listen on")
+    parser.add_argument("-c", "--config", default="config.json", type=str, help="config file")
     args = parser.parse_args()
-    app.run(host="127.0.0.1", port=args.port)
+    app.config.from_json(args.config)
+    app.run(load_dotenv=True, debug=True)
